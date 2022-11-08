@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Conexao index{% endblock %}
+
+{% block body %}
+    <h1>Conexao index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Host</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for conexao in conexaos %}
+            <tr>
+                <td>{{ conexao.id }}</td>
+                <td>{{ conexao.nome }}</td>
+                <td>{{ conexao.tipo }}</td>
+                <td>{{ conexao.host }}</td>
+                <td>
+                    <a href="{{ path('app_conexao_show', {'id': conexao.id}) }}">show</a>
+                    <a href="{{ path('app_conexao_edit', {'id': conexao.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_conexao_new') }}">Create new</a>
+{% endblock %}

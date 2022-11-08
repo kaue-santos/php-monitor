@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ocorrencia{% endblock %}
+
+{% block body %}
+    <h1>Ocorrencia</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ ocorrencium.id }}</td>
+            </tr>
+            <tr>
+                <th>Nome</th>
+                <td>{{ ocorrencium.nome }}</td>
+            </tr>
+            <tr>
+                <th>Descricao</th>
+                <td>{{ ocorrencium.descricao }}</td>
+            </tr>
+            <tr>
+                <th>Script</th>
+                <td>{{ ocorrencium.script }}</td>
+            </tr>
+            <tr>
+                <th>ColunaChave</th>
+                <td>{{ ocorrencium.colunaChave }}</td>
+            </tr>
+            <tr>
+                <th>Colunas</th>
+                <td>{{ ocorrencium.colunas }}</td>
+            </tr>
+            <tr>
+                <th>Ativo</th>
+                <td>{{ ocorrencium.ativo ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>TipoOcorrencia</th>
+                <td>{{ ocorrencium.tipoOcorrencia }}</td>
+            </tr>
+            <tr>
+                <th>QtdDiasParaAtraso</th>
+                <td>{{ ocorrencium.qtdDiasParaAtraso }}</td>
+            </tr>
+            <tr>
+                <th>QtdDiasParaAlertaAtraso</th>
+                <td>{{ ocorrencium.qtdDiasParaAlertaAtraso }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_ocorrencia_index') }}">back to list</a>
+
+    <a href="{{ path('app_ocorrencia_edit', {'id': ocorrencium.id}) }}">edit</a>
+
+    {{ include('ocorrencia/_delete_form.html.twig') }}
+{% endblock %}

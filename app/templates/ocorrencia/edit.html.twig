@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Ocorrencia{% endblock %}
+
+{% block body %}
+    <h1>Edit Ocorrencia</h1>
+
+    {{ include('ocorrencia/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_ocorrencia_index') }}">back to list</a>
+
+    {{ include('ocorrencia/_delete_form.html.twig') }}
+{% endblock %}

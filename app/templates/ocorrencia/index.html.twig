@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ocorrencia index{% endblock %}
+
+{% block body %}
+    <h1>Ocorrencia index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nome</th>
+                <th>Descricao</th>
+                <th>Script</th>
+                <th>ColunaChave</th>
+                <th>Colunas</th>
+                <th>Ativo</th>
+                <th>TipoOcorrencia</th>
+                <th>QtdDiasParaAtraso</th>
+                <th>QtdDiasParaAlertaAtraso</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for ocorrencium in ocorrencias %}
+            <tr>
+                <td>{{ ocorrencium.id }}</td>
+                <td>{{ ocorrencium.nome }}</td>
+                <td>{{ ocorrencium.descricao }}</td>
+                <td>{{ ocorrencium.script }}</td>
+                <td>{{ ocorrencium.colunaChave }}</td>
+                <td>{{ ocorrencium.colunas }}</td>
+                <td>{{ ocorrencium.ativo ? 'Yes' : 'No' }}</td>
+                <td>{{ ocorrencium.tipoOcorrencia }}</td>
+                <td>{{ ocorrencium.qtdDiasParaAtraso }}</td>
+                <td>{{ ocorrencium.qtdDiasParaAlertaAtraso }}</td>
+                <td>
+                    <a href="{{ path('app_ocorrencia_show', {'id': ocorrencium.id}) }}">show</a>
+                    <a href="{{ path('app_ocorrencia_edit', {'id': ocorrencium.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="11">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_ocorrencia_new') }}">Create new</a>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Ocorrencia{% endblock %}
+
+{% block body %}
+    <h1>Create new Ocorrencia</h1>
+
+    {{ include('ocorrencia/_form.html.twig') }}
+
+    <a href="{{ path('app_ocorrencia_index') }}">back to list</a>
+{% endblock %}

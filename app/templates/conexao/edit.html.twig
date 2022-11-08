@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Conexao{% endblock %}
+
+{% block body %}
+    <h1>Edit Conexao</h1>
+
+    {{ include('conexao/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_conexao_index') }}">back to list</a>
+
+    {{ include('conexao/_delete_form.html.twig') }}
+{% endblock %}

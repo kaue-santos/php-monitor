@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Conexao{% endblock %}
+
+{% block body %}
+    <h1>Create new Conexao</h1>
+
+    {{ include('conexao/_form.html.twig') }}
+
+    <a href="{{ path('app_conexao_index') }}">back to list</a>
+{% endblock %}
