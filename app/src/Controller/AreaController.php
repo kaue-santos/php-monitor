@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Area;
 use App\Form\AreaType;
 use App\Repository\AreaRepository;
+use App\Service\AreaService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,31 +14,33 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/monitor/area')]
 class AreaController extends AbstractController
 {
-    #[Route('/', name: 'app_area_index', methods: ['GET'])]
-    public function index(AreaRepository $areaRepository): Response
+    /** @var AreaService */
+    private $svr;
+
+    public function __construct(AreaService $svr)
     {
-        return $this->render('area/index.html.twig', [
-            'areas' => $areaRepository->findAll(),
-        ]);
+        $this->svr = $svr;
     }
 
-    #[Route('/new', name: 'app_area_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, AreaRepository $areaRepository): Response
+    #[Route('/', name: 'app_area_index', methods: ['GET'])]
+    public function index(AreaRepository $areaRepository)
     {
-        $area = new Area();
-        $form = $this->createForm(AreaType::class, $area);
-        $form->handleRequest($request);
+        $area = $this->svr->listArea();
+       
+        return $this->json($area); 
+    }
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $areaRepository->save($area, true);
+    #[Route('/new', name: 'app_area_new', methods: ['POST'])]
+    public function new(Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
 
-            return $this->redirectToRoute('app_area_index', [], Response::HTTP_SEE_OTHER);
-        }
+        $this->svr->validateArea($data);
 
-        return $this->renderForm('area/new.html.twig', [
-            'area' => $area,
-            'form' => $form,
-        ]);
+        $area = $this->svr->newArea($data);
+
+        return $this->json($area);
+        
     }
 
     #[Route('/{id}', name: 'app_area_show', methods: ['GET'])]
@@ -48,31 +51,25 @@ class AreaController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_area_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Area $area, AreaRepository $areaRepository): Response
+    #[Route('/edit/{id}', name: 'app_area_edit', methods: ['PUT'])]
+    public function edit(Request $request, $id): Response
     {
-        $form = $this->createForm(AreaType::class, $area);
-        $form->handleRequest($request);
+        //Só deveria ser possivel inativar uma Area sem ocorrências vinculadas
+        $data = json_decode($request->getContent(), true);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $areaRepository->save($area, true);
+        $this->svr->validateArea($data);
 
-            return $this->redirectToRoute('app_area_index', [], Response::HTTP_SEE_OTHER);
-        }
+        $area = $this->svr->editArea($data, $id);
 
-        return $this->renderForm('area/edit.html.twig', [
-            'area' => $area,
-            'form' => $form,
-        ]);
+        return $this->json($area);
     }
 
-    #[Route('/{id}', name: 'app_area_delete', methods: ['POST'])]
-    public function delete(Request $request, Area $area, AreaRepository $areaRepository): Response
+    #[Route('/{id}', name: 'app_area_delete', methods: ['DELETE'])]
+    public function delete($id): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$area->getId(), $request->request->get('_token'))) {
-            $areaRepository->remove($area, true);
-        }
+        //Deppois tenho que ver uma area não esta vinculada a algo para apagar
+        $area = $this->svr->deleteArea($id);
 
-        return $this->redirectToRoute('app_area_index', [], Response::HTTP_SEE_OTHER);
+        return $this->json($area);
     }
 }

@@ -28,6 +28,9 @@ class Alertas
     #[ORM\ManyToOne]
     private ?Area $id_area = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $Ativo = null;
+
     
     public function getId(): ?int
     {
@@ -90,6 +93,18 @@ class Alertas
     public function setIdArea(?Area $id_area): self
     {
         $this->id_area = $id_area;
+
+        return $this;
+    }
+
+    public function isAtivo(): ?bool
+    {
+        return $this->Ativo;
+    }
+
+    public function setAtivo(?bool $Ativo): self
+    {
+        $this->Ativo = $Ativo;
 
         return $this;
     }

@@ -16,6 +16,9 @@ class Area
     #[ORM\Column(length: 255)]
     private ?string $nome = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $ativo = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -29,6 +32,18 @@ class Area
     public function setNome(string $nome): self
     {
         $this->nome = $nome;
+
+        return $this;
+    }
+
+    public function isAtivo(): ?bool
+    {
+        return $this->ativo;
+    }
+
+    public function setAtivo(?bool $ativo): self
+    {
+        $this->ativo = $ativo;
 
         return $this;
     }
