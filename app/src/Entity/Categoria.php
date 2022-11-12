@@ -21,6 +21,9 @@ class Categoria
     #[ORM\Column]
     private ?bool $ativo = null;
 
+    #[ORM\ManyToOne]
+    private ?Area $id_area = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -50,5 +53,15 @@ class Categoria
         return $this;
     }
 
-   
+    public function getIdArea(): ?Area
+    {
+        return $this->id_area;
+    }
+
+    public function setIdArea(?Area $id_area): self
+    {
+        $this->id_area = $id_area;
+
+        return $this;
+    }
 }

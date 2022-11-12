@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Usuario;
 use App\Form\UsuarioType;
 use App\Repository\UsuarioRepository;
+use App\Service\UsuarioService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,31 +14,33 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/monitor/usuario')]
 class UsuarioController extends AbstractController
 {
-    #[Route('/', name: 'app_usuario_index', methods: ['GET'])]
-    public function index(UsuarioRepository $usuarioRepository): Response
+    /** @var UsuarioService */
+    private $svr;
+
+    public function __construct(UsuarioService $svr)
     {
-        return $this->render('usuario/index.html.twig', [
-            'usuarios' => $usuarioRepository->findAll(),
-        ]);
+        $this->svr = $svr;
     }
 
-    #[Route('/new', name: 'app_usuario_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, UsuarioRepository $usuarioRepository): Response
+    #[Route('/', name: 'app_usuario_index', methods: ['GET'])]
+    public function index(UsuarioRepository $usuarioRepository)
     {
-        $usuario = new Usuario();
-        $form = $this->createForm(UsuarioType::class, $usuario);
-        $form->handleRequest($request);
+        $usuario = $this->svr->listUsuario();
+       
+        return $this->json($usuario); 
+    }
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $usuarioRepository->save($usuario, true);
+    #[Route('/new', name: 'app_usuario_new', methods: ['POST'])]
+    public function new(Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
+        
+        $this->svr->validateUsuario($data);
 
-            return $this->redirectToRoute('app_usuario_index', [], Response::HTTP_SEE_OTHER);
-        }
+        $usuario = $this->svr->newUsuario($data);
 
-        return $this->renderForm('usuario/new.html.twig', [
-            'usuario' => $usuario,
-            'form' => $form,
-        ]);
+        return $this->json($usuario);
+        
     }
 
     #[Route('/{id}', name: 'app_usuario_show', methods: ['GET'])]
@@ -48,31 +51,25 @@ class UsuarioController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_usuario_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Usuario $usuario, UsuarioRepository $usuarioRepository): Response
+    #[Route('/edit/{id}', name: 'app_usuario_edit', methods: ['PUT'])]
+    public function edit(Request $request, $id): Response
     {
-        $form = $this->createForm(UsuarioType::class, $usuario);
-        $form->handleRequest($request);
+        //Só deveria ser possivel inativar uma Usuario sem ocorrências vinculadas
+        $data = json_decode($request->getContent(), true);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $usuarioRepository->save($usuario, true);
+        $this->svr->validateUsuario($data);
 
-            return $this->redirectToRoute('app_usuario_index', [], Response::HTTP_SEE_OTHER);
-        }
+        $usuario = $this->svr->editUsuario($data, $id);
 
-        return $this->renderForm('usuario/edit.html.twig', [
-            'usuario' => $usuario,
-            'form' => $form,
-        ]);
+        return $this->json($usuario);
     }
 
-    #[Route('/{id}', name: 'app_usuario_delete', methods: ['POST'])]
-    public function delete(Request $request, Usuario $usuario, UsuarioRepository $usuarioRepository): Response
+    #[Route('/{id}', name: 'app_usuario_delete', methods: ['DELETE'])]
+    public function delete($id): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$usuario->getId(), $request->request->get('_token'))) {
-            $usuarioRepository->remove($usuario, true);
-        }
+        //Deppois tenho que ver uma usuario não esta vinculada a algo para apagar
+        $usuario = $this->svr->deleteUsuario($id);
 
-        return $this->redirectToRoute('app_usuario_index', [], Response::HTTP_SEE_OTHER);
+        return $this->json($usuario);
     }
 }

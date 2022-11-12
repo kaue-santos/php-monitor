@@ -117,7 +117,7 @@ class AlertasService
         $alerta->setNome($data['nome']);
         $alerta->setCor($data['cor']);
         $alerta->setDiasInicio($data['diasInicio']);
-        $alerta->setDiasFim($data['nome']);
+        $alerta->setDiasFim($data['diasFim']);
         $alerta->isAtivo(true);
 
         $this->em->persist($alerta);

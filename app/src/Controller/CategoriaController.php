@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Categoria;
 use App\Form\CategoriaType;
 use App\Repository\CategoriaRepository;
+use App\Service\CategoriaService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,66 +14,62 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/monitor/categoria')]
 class CategoriaController extends AbstractController
 {
-    #[Route('/', name: 'app_categoria_index', methods: ['GET'])]
-    public function index(CategoriaRepository $categoriaRepository): Response
+    /** @var CategoriaService */
+    private $svr;
+
+    public function __construct(CategoriaService $svr)
     {
-        return $this->render('categoria/index.html.twig', [
-            'categorias' => $categoriaRepository->findAll(),
-        ]);
+        $this->svr = $svr;
     }
 
-    #[Route('/new', name: 'app_categoria_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, CategoriaRepository $categoriaRepository): Response
+    #[Route('/', name: 'app_categoria_index', methods: ['GET'])]
+    public function index(CategoriaRepository $categoriaRepository)
     {
-        $categorium = new Categoria();
-        $form = $this->createForm(CategoriaType::class, $categorium);
-        $form->handleRequest($request);
+        $categoria = $this->svr->listCategoria();
+       
+        return $this->json($categoria); 
+    }
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $categoriaRepository->save($categorium, true);
+    #[Route('/new', name: 'app_categoria_new', methods: ['POST'])]
+    public function new(Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
 
-            return $this->redirectToRoute('app_categoria_index', [], Response::HTTP_SEE_OTHER);
-        }
+        $this->svr->validateCategoria($data);
 
-        return $this->renderForm('categoria/new.html.twig', [
-            'categorium' => $categorium,
-            'form' => $form,
-        ]);
+        $categoria = $this->svr->newCategoria($data);
+
+        return $this->json($categoria);
+        
     }
 
     #[Route('/{id}', name: 'app_categoria_show', methods: ['GET'])]
-    public function show(Categoria $categorium): Response
+    public function show(Categoria $categoria): Response
     {
         return $this->render('categoria/show.html.twig', [
-            'categorium' => $categorium,
+            'categoria' => $categoria,
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_categoria_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Categoria $categorium, CategoriaRepository $categoriaRepository): Response
+    #[Route('/edit/{id}', name: 'app_categoria_edit', methods: ['PUT'])]
+    public function edit(Request $request, $id): Response
     {
-        $form = $this->createForm(CategoriaType::class, $categorium);
-        $form->handleRequest($request);
+        //Só deveria ser possivel inativar uma Categoria sem ocorrências vinculadas
+        $data = json_decode($request->getContent(), true);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $categoriaRepository->save($categorium, true);
+        $this->svr->validateCategoria($data);
 
-            return $this->redirectToRoute('app_categoria_index', [], Response::HTTP_SEE_OTHER);
-        }
+        $categoria = $this->svr->editCategoria($data, $id);
 
-        return $this->renderForm('categoria/edit.html.twig', [
-            'categorium' => $categorium,
-            'form' => $form,
-        ]);
+        return $this->json($categoria);
     }
 
-    #[Route('/{id}', name: 'app_categoria_delete', methods: ['POST'])]
-    public function delete(Request $request, Categoria $categorium, CategoriaRepository $categoriaRepository): Response
+    #[Route('/{id}', name: 'app_categoria_delete', methods: ['DELETE'])]
+    public function delete($id): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$categorium->getId(), $request->request->get('_token'))) {
-            $categoriaRepository->remove($categorium, true);
-        }
+        //Deppois tenho que ver uma categoria não esta vinculada a algo para apagar
+        $categoria = $this->svr->deleteCategoria($id);
 
-        return $this->redirectToRoute('app_categoria_index', [], Response::HTTP_SEE_OTHER);
+        return $this->json($categoria);
     }
 }
